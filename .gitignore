@@ -1,0 +1,31 @@
+.custom_llm
+
+# Ignore environment variables
+.env
+
+# Ignore FAISS index and extracted texts
+faiss_index.bin
+faiss_texts.json
+embeddings.json
+
+# Ignore extracted text files
+extracted_text.txt
+chunks.txt
+
+# Ignore external book files (optional, if you don’t want them in Git)
+externals/*.pdf
+externals/*.epub
+
+# Ignore NLTK downloaded data
+~/nltk_data/
+nltk/
+punkt.zip
+
+# Ignore __pycache__ and compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore temporary and log files
+*.log
+*.tmp
