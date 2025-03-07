@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <title>Smart Read AI</title>
+  <script>
+    function toggleUpload() {
+      document.getElementById("intro-text").classList.toggle("hidden");
+      document.getElementById("upload-form").classList.toggle("hidden");
+    }
+
+    function resetUpload() {
+      document.getElementById("upload-form").classList.add("hidden");
+      document.getElementById("intro-text").classList.remove("hidden");
+    }
+  </script>
+</head>
+<body class="bg-white">
+  <header class="absolute inset-x-0 top-0 z-50">
+    <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
+      <div class="flex lg:flex-1">
+        <a href="#" class="-m-1.5 p-1.5">
+          <span class="sr-only">Smart Read AI</span>
+          <img class="h-8 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="">
+        </a>
+      </div>
+      <div class="flex lg:hidden">
+        <button type="button" aria-expanded="false" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
+          <span class="sr-only">Open main menu</span>
+          <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
+      </div>
+      <div class="hidden lg:flex lg:gap-x-12">
+        <a href="#" class="text-sm font-semibold text-gray-900">Product</a>
+        <a href="#" class="text-sm font-semibold text-gray-900">Features</a>
+        <a href="#" class="text-sm font-semibold text-gray-900">Marketplace</a>
+        <a href="#" class="text-sm font-semibold text-gray-900">Company</a>
+      </div>
+      <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+        <a href="#" class="text-sm font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    </nav>
+    <!-- Mobile menu, show/hide based on menu open state. -->
+    <div class="lg:hidden md:hidden hidden role="dialog" aria-modal="true">
+      <!-- Background backdrop, show/hide based on slide-over state. -->
+      <div class="fixed inset-0 z-50"></div>
+      <div class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+        <div class="flex items-center justify-between">
+          <a href="#" class="-m-1.5 p-1.5">
+            <span class="sr-only">Your Company</span>
+            <img class="h-8 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="">
+          </a>
+          <button type="button" class="-m-2.5 rounded-md p-2.5 text-gray-700">
+            <span class="sr-only">Close menu</span>
+            <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="mt-6 flow-root">
+          <div class="-my-6 divide-y divide-gray-500/10">
+            <div class="space-y-2 py-6">
+              <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Product</a>
+              <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Features</a>
+              <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Marketplace</a>
+              <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Company</a>
+            </div>
+            <div class="py-6">
+              <a href="#" class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">Log in</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="relative isolate px-6 pt-14 lg:px-8">
+     
+      <div class="mx-auto max-w-2xl py-20 sm:py-36 lg:py-20">
+        <!-- Intro Text -->
+        <div id="intro-text" class="text-center">
+          <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Smart AI-Powered Reading</h1>
+          <p class="mt-6 text-lg leading-8 text-gray-600">
+            Upload your books and let AI help you read, summarize, and understand them effortlessly.
+          </p>
+          <div class="mt-10 flex items-center justify-center gap-x-6">
+            <button onclick="toggleUpload()" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none">
+              Get started
+            </button>
+            <a href="#" class="text-sm font-semibold text-gray-900">Learn more <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+
+        <!-- Upload Form -->
+        <div id="upload-form" class="hidden text-center">
+          <h2 class="text-3xl font-semibold text-gray-900">Upload Your Document</h2>
+          <p class="mt-4 text-gray-600">Upload a PDF or EPUB file for processing.</p>
+          
+          <form action="/upload" method="post" enctype="multipart/form-data" class="mt-6">
+            <input type="file" name="file" required accept=".pdf,.epub" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none">
+            <div class="mt-6 flex items-center justify-center gap-x-6">
+              <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500">
+                Submit
+              </button>
+              <button type="button" onclick="resetUpload()" class="rounded-md bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 shadow hover:bg-gray-400">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Background Section -->
+    <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]">
+      <svg class="relative left-[calc(50%+3rem)] -z-10 h-[21.1875rem] max-w-none -translate-x-1/2 rotate-[30deg] sm:left-[calc(50%+36rem)] sm:h-[42.375rem]" viewBox="0 0 1155 678" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill="url(#background-pattern)" fill-opacity=".3" d="M1155 678V0H0v678h1155Z"></path>
+        <defs>
+          <linearGradient id="background-pattern" x1="577.5" x2="577.5" y1="0" y2="678" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#6818B8"></stop>
+            <stop offset="1" stop-color="#E0E7FF"></stop>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>
