@@ -1,5 +1,5 @@
  
-.custom_llm
+.sr
 
 # Ignore environment variables
 .env
@@ -30,3 +30,4 @@ __pycache__/
 # Ignore temporary and log files
 *.log
 *.tmp
+temp
