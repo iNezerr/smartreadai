@@ -60,11 +60,14 @@ def get_answer(question):
 
     # Use the provided system prompt
     system_prompt = (
-        "You are a helpful assistant that answers questions based on a book.\n"
-        "Answer the question below using the provided book content.\n"
-        "If the book doesn't contain enough information, say you don't know.\n\n"
-        "Book Content:\n{context}\n\n"
-    )
+    "If you're asked who you are:\n"
+    "You are a helpful assistant that answers questions based on a book.\n"
+    "Answer the question below using the provided book content.\n"
+    "If the user asks for a summary of a chapter or section, summarize it based on the given book content.\n"
+    "If the chapter or section is not fully available, summarize what is available.\n"
+    "If you can't find any relevant information, say: 'I don't have enough information to answer.'\n\n"
+    "Book Content:\n{context}\n\n"
+)
 
     # Create a Prompt Template
     prompt = ChatPromptTemplate.from_messages([
