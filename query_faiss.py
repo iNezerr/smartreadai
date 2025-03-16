@@ -53,19 +53,20 @@ def get_answer(question):
     vector_db = FAISS.load_local(FAISS_INDEX_DIR, embeddings, allow_dangerous_deserialization=True)
 
     # Set up retriever
-    retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 3})
+    retriever = vector_db.as_retriever(search_type="mmr", search_kwargs={"k": 5})
+    retrieved_docs = retriever.get_relevant_documents(question)
+    print("Retrieved Chunks:", [doc.page_content for doc in retrieved_docs])
 
     # Initialize LLM
     llm = ChatOpenAI(model_name="gpt-4o-mini", openai_api_key=OPENAI_KEY)
 
     # Use the provided system prompt
     system_prompt = (
-    "If you're asked who you are:\n"
     "You are a helpful assistant that answers questions based on a book.\n"
-    "Answer the question below using the provided book content.\n"
-    "If the user asks for a summary of a chapter or section, summarize it based on the given book content.\n"
-    "If the chapter or section is not fully available, summarize what is available.\n"
-    "If you can't find any relevant information, say: 'I don't have enough information to answer.'\n\n"
+    "If asked for a summary, extract key points and main ideas from the retrieved book content.\n"
+    "If the chapter or section is only partially available, summarize what is available.\n"
+    "If you can't find enough relevant details, say: 'I don't have enough information to provide a full summary, but here is what I found:' and summarize whatever is retrieved.\n"
+    "Do not make up information beyond what is provided.\n\n"
     "Book Content:\n{context}\n\n"
 )
 
