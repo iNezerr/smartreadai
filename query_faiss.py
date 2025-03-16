@@ -1,71 +1,85 @@
-import faiss
-import json
-import openai
-import numpy as np
 import os
+import json
 from dotenv import load_dotenv
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_community.vectorstores import FAISS
+from langchain.schema import Document
+from langchain.chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.prompts import ChatPromptTemplate
 
-# Load API Key
+# Load environment variables
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+OPENAI_KEY = os.getenv("OPENAI_KEY")
 
-FAISS_INDEX_FILE = "faiss_index.bin"
-TEXTS_FILE = "faiss_texts.json"
+TEMP_DIR = "temp"
+CHUNKS_FILE = os.path.join(TEMP_DIR, "chunks.json")
+FAISS_INDEX_DIR = os.path.join(TEMP_DIR, "faiss_index")  # Now correctly treated as a folder
 
-def get_embedding(text):
-    """Get OpenAI embedding for a given text."""
-    response = openai.embeddings.create(
-        model="text-embedding-ada-002",
-        input=text
-    )
-    return np.array(response.data[0].embedding).astype("float32")
+def create_faiss_index():
+    """Loads text chunks, generates embeddings, and stores them in FAISS."""
+    if not os.path.exists(CHUNKS_FILE):
+        raise FileNotFoundError(f"Chunks file not found: {CHUNKS_FILE}")
 
-def search_faiss(query, top_k=3):
-    """Search FAISS index for the most relevant text chunks."""
+    # Load stored chunks
+    with open(CHUNKS_FILE, "r", encoding="utf-8") as f:
+        chunks = json.load(f)
+
+    if not chunks:
+        raise ValueError("Chunks file is empty. Cannot create FAISS index.")
+
+    # Generate embeddings
+    embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_KEY, model="text-embedding-ada-002")
+
+    # Convert chunks into Document objects for FAISS
+    documents = [Document(page_content=chunk) for chunk in chunks]
+
+    # Create FAISS vector store
+    vector_db = FAISS.from_documents(documents, embeddings)
+
+    # Save FAISS index
+    os.makedirs(FAISS_INDEX_DIR, exist_ok=True)
+    vector_db.save_local(FAISS_INDEX_DIR)  # ✅ Ensure it's saved as a directory
+
+    print(f"FAISS index stored at {FAISS_INDEX_DIR}")
+
+def get_answer(question):
+    """Retrieves the best answer from FAISS for a given question using an LLM."""
+    if not os.path.exists(os.path.join(FAISS_INDEX_DIR, "index.faiss")):
+        raise FileNotFoundError(f"FAISS index not found: {FAISS_INDEX_DIR}")
+
     # Load FAISS index
-    index = faiss.read_index(FAISS_INDEX_FILE)
+    embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_KEY, model="text-embedding-ada-002")
+    vector_db = FAISS.load_local(FAISS_INDEX_DIR, embeddings, allow_dangerous_deserialization=True)
 
-    # Load stored texts
-    with open(TEXTS_FILE, "r", encoding="utf-8") as f:
-        texts = json.load(f)
+    # Set up retriever
+    retriever = vector_db.as_retriever(search_type="mmr", search_kwargs={"k": 5})
+    retrieved_docs = retriever.get_relevant_documents(question)
+    print("Retrieved Chunks:", [doc.page_content for doc in retrieved_docs])
 
-    # Convert query to embedding
-    query_embedding = get_embedding(query).reshape(1, -1)
+    # Initialize LLM
+    llm = ChatOpenAI(model_name="gpt-4o-mini", openai_api_key=OPENAI_KEY)
 
-    # Search FAISS index
-    distances, indices = index.search(query_embedding, top_k)
+    # Use the provided system prompt
+    system_prompt = (
+    "You are a helpful assistant that answers questions based on a book.\n"
+    "If asked for a summary, extract key points and main ideas from the retrieved book content.\n"
+    "If the chapter or section is only partially available, summarize what is available.\n"
+    "If you can't find enough relevant details, say: 'I don't have enough information to provide a full summary, but here is what I found:' and summarize whatever is retrieved.\n"
+    "Do not make up information beyond what is provided.\n\n"
+    "Book Content:\n{context}\n\n"
+)
 
-    # Return top results
-    results = [texts[i] for i in indices[0] if i < len(texts)]
-    return results
+    # Create a Prompt Template
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", system_prompt),
+        ("human", "{input}")
+    ])
 
-def generate_answer(query, retrieved_texts):
-    """Use GPT to generate a proper answer from retrieved texts."""
-    context = "\n\n".join(retrieved_texts)
+    # Create a chain that retrieves documents and processes them with the LLM
+    qa_chain = create_retrieval_chain(retriever, create_stuff_documents_chain(llm, prompt))
 
-    prompt = f"""
-    You are a helpful assistant that answers questions based on a book.
-    Answer the question below using the provided book content.
-    If the book doesn't contain enough information, say you don't know.
+    # Get AI-generated answer
+    response = qa_chain.invoke({"input": question})["answer"]
 
-    Book Content:
-    {context}
-
-    Question: {query}
-    Answer:
-    """
-
-    response = openai.chat.completions.create(
-        model="gpt-4",  # Or "gpt-3.5-turbo" if you want a cheaper option
-        messages=[{"role": "system", "content": "You are a knowledgeable assistant."},
-                  {"role": "user", "content": prompt}]
-    )
-
-    return response.choices[0].message.content.strip()
-
-# Example Usage
-if __name__ == "__main__":
-    query = input("Enter your question: ")
-    retrieved_texts = search_faiss(query)
-    answer = generate_answer(query, retrieved_texts)
-    print("\nAnswer:\n", answer)
+    return response
