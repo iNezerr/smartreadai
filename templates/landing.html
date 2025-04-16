@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartReadAI - Transform Your Reading Experience</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="font-sans bg-gradient-to-b from-gray-900 to-black text-white overflow-x-hidden">
+    <!-- Navigation -->
+    <nav class="py-4 px-6 md:px-12 flex justify-between items-center border-b border-purple-900 bg-opacity-80 backdrop-blur-lg fixed w-full z-50">
+        <div class="flex items-center space-x-2">
+            <div class="logo-container">
+                <span class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">SmartRead<span class="text-purple-500">AI</span></span>
+                <div class="logo-glow"></div>
+            </div>
+        </div>
+        <div class="hidden md:flex space-x-8 items-center">
+            <a href="#features" class="hover:text-purple-400 transition-colors duration-300 nav-link">Features</a>
+            <a href="#how-it-works" class="hover:text-purple-400 transition-colors duration-300 nav-link">How It Works</a>
+            <a href="#testimonials" class="hover:text-purple-400 transition-colors duration-300 nav-link">Testimonials</a>
+            <a href="#faq" class="hover:text-purple-400 transition-colors duration-300 nav-link">FAQ</a>
+        </div>
+        <div>
+            <a href="{{ url_for('chat') }}" class="btn-primary">Start Reading <i class="fas fa-arrow-right ml-2"></i></a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div class="hero-background">
+            <div class="floating-book book-1"><img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Book"></div>
+            <div class="floating-book book-2"><img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1598&q=80" alt="Book"></div>
+            <div class="floating-book book-3"><img src="https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Book"></div>
+            <div class="floating-book book-4"><img src="https://pixabay.com/get/g8a5d0833800039c9713d12e03443be6952ccee6b40756542bbe4e1c1668af28585b70dcfcd67fd0c47585f4475a49d3698eab7049cdc01337ee57df3af62dea4ce326e89f892f56ac4e292236899e5ac_1920.png" alt="Book"></div>
+            <div class="floating-book book-5"><img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=688&q=80" alt="Book"></div>
+            <div class="particle-container"></div>
+        </div>
+        <div class="container mx-auto px-6 z-10 text-center">
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight glow-text">
+                Revolutionary AI <br> Book Companion
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-gray-300">
+                Upload any book and start a conversation. Get summaries, insights, and answers to your questions instantly.
+            </p>
+            <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+                <a href="{{ url_for('chat') }}" class="btn-primary btn-lg pulse-animation">
+                    <i class="fas fa-book-open mr-2"></i> Start Reading Now
+                </a>
+                <a href="#how-it-works" class="btn-secondary btn-lg">
+                    <i class="fas fa-info-circle mr-2"></i> Learn How It Works
+                </a>
+            </div>
+            <div class="mt-10 stats-container">
+                <div class="stat-card">
+                    <h3 class="text-4xl font-bold text-green-400 counter" data-target="1500">0</h3>
+                    <p>Books Analyzed</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="text-4xl font-bold text-blue-400 counter" data-target="98">0</h3>
+                    <p>% User Satisfaction</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="text-4xl font-bold text-purple-400 counter" data-target="75000">0</h3>
+                    <p>Questions Answered</p>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll Down</span>
+            <div class="scroll-arrow"></div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 relative overflow-hidden">
+        <div class="feature-background"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Powerful Features</h2>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">Discover how SmartReadAI transforms the way you interact with books</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">AI-Powered Conversations</h3>
+                    <p>Ask questions about your book and get intelligent, contextual responses as if you're chatting with an expert.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Instant Analysis</h3>
+                    <p>Get summaries, theme analysis, character profiles, and key insights within seconds of uploading your book.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Easy Upload</h3>
+                    <p>Simply drag and drop your PDF or EPUB files and let our system do the rest. No complicated setup required.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Deep Understanding</h3>
+                    <p>Our AI comprehends complex themes, character motivations, and subtle literary devices that other tools miss.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Conversation History</h3>
+                    <p>All your book discussions are saved, making it easy to revisit insights or continue conversations later.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Multi-Book Library</h3>
+                    <p>Build your digital library and switch between book conversations effortlessly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-20 bg-gradient-to-b from-gray-900 to-black relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">How It Works</h2>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">Three simple steps to unlock the full potential of your books</p>
+            </div>
+
+            <div class="steps-container">
+                <div class="step-connector"></div>
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 class="text-2xl font-bold mb-3">Upload Your Book</h3>
+                        <p>Drag and drop your PDF or EPUB file into our intuitive interface.</p>
+                        <div class="step-image">
+                            <img src="https://pixabay.com/get/g40252b8d6a10a58e4c532f29324526af7d40f3beed42273fc5641a3bc2a00db212e2e07eb363e9b5da1268292c3e2d2bd778b90844c045e80f0d7d9a81c83f0d7d27a19a74e4afe79e039dcb5874358f_1280.png" alt="Upload" class="rounded-lg shadow-lg p-20">
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 class="text-2xl font-bold mb-3">AI Processing</h3>
+                        <p>Our cutting-edge AI analyzes the book, understanding its content, themes, and context.</p>
+                        <div class="step-image">
+                            <img src="https://pixabay.com/get/g7633ab905d2e9bde35d32c15af29145c8764549b72a24661dbf2b1d5034a6d1fd7fdcdabe9de07e885819fc7ff1f88847b7a7a4b131dcdb3e4833b5445fbd85f39a9f148a3897030720aa3012c3f7fc0_640.png" alt="AI Processing" class="rounded-lg shadow-lg">
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 class="text-2xl font-bold mb-3">Start Chatting</h3>
+                        <p>Ask any question about the book and receive thoughtful, contextual answers instantly.</p>
+                        <div class="step-image">
+                            <img src="https://images.unsplash.com/photo-1577563908411-5077b6dc7624?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" alt="Chatting" class="rounded-lg shadow-lg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-16">
+                <a href="{{ url_for('chat') }}" class="btn-primary btn-lg">
+                    <i class="fas fa-rocket mr-2"></i> Try It Now
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 bg-black relative">
+        <div class="testimonial-background"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">What Our Users Say</h2>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">Join thousands of satisfied readers who have transformed their reading experience</p>
+            </div>
+
+            <div class="testimonials-slider">
+                <div class="testimonial-card">
+                    <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
+                    <p class="testimonial-text">SmartReadAI has completely changed how I study literature. I can now understand complex themes and motifs that I would have missed otherwise.</p>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Johnson" class="testimonial-avatar">
+                        <div>
+                            <h4 class="testimonial-name">Sarah Johnson</h4>
+                            <p class="testimonial-title">Literature Student</p>
+                        </div>
+                    </div>
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
+                    <p class="testimonial-text">As a book club organizer, this tool has been invaluable. It helps me prepare discussion points and ensures I don't miss any important aspects of the books we read.</p>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Michael Chen" class="testimonial-avatar">
+                        <div>
+                            <h4 class="testimonial-name">Michael Chen</h4>
+                            <p class="testimonial-title">Book Club Organizer</p>
+                        </div>
+                    </div>
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
+                    <p class="testimonial-text">I've been able to revisit classics and discover new insights I never noticed before. It's like having a literature professor on demand!</p>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Emily Rodriguez" class="testimonial-avatar">
+                        <div>
+                            <h4 class="testimonial-name">Emily Rodriguez</h4>
+                            <p class="testimonial-title">Avid Reader</p>
+                        </div>
+                    </div>
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 bg-gradient-to-b from-black to-gray-900 relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Frequently Asked Questions</h2>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">Everything you need to know about SmartReadAI</p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>What file formats does SmartReadAI support?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Currently, SmartReadAI supports PDF and EPUB files. We're working on adding support for more formats including MOBI, TXT, and DOC in the future.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Is my book data secure?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolutely! We take data privacy seriously. Your uploaded books are encrypted and processed securely. We don't share or store the full text of your books beyond what's needed for analysis.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How accurate are the AI responses?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Our AI is trained on a vast library of literary works and provides highly accurate analyses. However, like any AI, it may occasionally misinterpret nuanced content. We're continuously improving our models for even better accuracy.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Can I use SmartReadAI for academic purposes?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! Many students and educators use SmartReadAI to enhance their understanding of texts. It's a great study companion, but we recommend using it as a supplementary tool rather than a replacement for critical reading.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How many books can I upload?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>There is no strict limit on the number of books you can upload and analyze. However, we recommend keeping your library to a manageable size for the best experience.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-r from-purple-900 to-blue-900 relative overflow-hidden">
+        <div class="cta-particles"></div>
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6 text-white glow-text">Ready to Transform Your Reading Experience?</h2>
+            <p class="text-xl text-gray-200 mb-10 max-w-3xl mx-auto">Join thousands of readers who have already discovered the power of AI-enhanced reading.</p>
+            <a href="{{ url_for('chat') }}" class="btn-cta">
+                <span>Get Started Now</span>
+                <i class="fas fa-rocket ml-2"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black py-12 border-t border-gray-800">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div class="md:col-span-1">
+                    <div class="logo-container mb-4">
+                        <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">SmartRead<span class="text-purple-500">AI</span></span>
+                    </div>
+                    <p class="text-gray-400">Revolutionizing how you interact with books through the power of artificial intelligence.</p>
+                    <div class="mt-4 flex space-x-4">
+                        <a href="{{ url_for('chat') }}" class="text-gray-400 hover:text-white transition-colors duration-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="{{ url_for('chat') }}" class="text-gray-400 hover:text-white transition-colors duration-300">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="{{ url_for('chat') }}" class="text-gray-400 hover:text-white transition-colors duration-300">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="{{ url_for('chat') }}" class="text-gray-400 hover:text-white transition-colors duration-300">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#features" class="text-gray-400 hover:text-white transition-colors duration-300">Features</a></li>
+                        <li><a href="#how-it-works" class="text-gray-400 hover:text-white transition-colors duration-300">How It Works</a></li>
+                        <li><a href="#testimonials" class="text-gray-400 hover:text-white transition-colors duration-300">Testimonials</a></li>
+                        <li><a href="#faq" class="text-gray-400 hover:text-white transition-colors duration-300">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold mb-4">Resources</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{{ url_for('chat') }}" class="text-gray-400 hover:text-white transition-colors duration-300">My Library</a></li>
+                        <li><a href="{{ url_for('chat') }}" class="text-gray-400 hover:text-white transition-colors duration-300">Support</a></li>
+                        <li><a href="{{ url_for('chat') }}" class="text-gray-400 hover:text-white transition-colors duration-300">Help Center</a></li>
+                        <li><a href="{{ url_for('chat') }}" class="text-gray-400 hover:text-white transition-colors duration-300">Getting Started</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white font-semibold mb-4">Legal</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{{ url_for('chat') }}" class="text-gray-400 hover:text-white transition-colors duration-300">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('chat') }}" class="text-gray-400 hover:text-white transition-colors duration-300">Terms of Service</a></li>
+                        <li><a href="{{ url_for('chat') }}" class="text-gray-400 hover:text-white transition-colors duration-300">Copyright</a></li>
+                        <li><a href="{{ url_for('chat') }}" class="text-gray-400 hover:text-white transition-colors duration-300">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center">
+                <p class="text-gray-500">© 2025 SmartReadAI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+</body>
+</html>

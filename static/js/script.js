@@ -21,14 +21,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
   });
 
-  // Model selection
-  document.querySelectorAll(".model-selector button").forEach(model => {
-      model.addEventListener("click", function () {
-          document.querySelector(".model-selector button.selected")?.classList.remove("selected");
-          model.classList.add("selected");
-      });
-  });
-
   // Auto-expanding message input
   const message_box = document.querySelector("#message");
 
@@ -47,8 +39,13 @@ document.addEventListener("DOMContentLoaded", function () {
       document.querySelector(view_selector).style.display = "flex";
   }
 
-  // Set conversation view as default
-  show_view(".conversation-view");
+  // Set new chat (upload) view as default
+  show_view(".new-chat-view");
+
+  // New chat button redirects to upload view
+  document.querySelector(".new-chat").addEventListener("click", function() {
+      show_view(".new-chat-view");
+  });
 
   // Handle message sending
   document.querySelector(".send-button").addEventListener("click", sendMessage);
@@ -95,28 +92,104 @@ document.addEventListener("DOMContentLoaded", function () {
               </i>
           </div>
           <div class="content">
-              <p>${text}</p>
+              <p>${text.replace(/\n/g, '<br>')}</p>
           </div>
       `;
       chatContainer.appendChild(messageDiv);
       chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll to latest message
   }
 
-  // File upload handling
-  const fileInput = document.createElement("input");
-  fileInput.type = "file";
-  fileInput.style.display = "none";
-  document.body.appendChild(fileInput);
+  // Advanced file upload handling
+  const fileInput = document.getElementById("fileInput");
+  const dropZone = document.getElementById("dropZone");
+  const uploadProgress = document.querySelector(".upload-progress");
+  const progressBar = document.querySelector(".progress");
+  const progressText = document.querySelector(".progress-text");
+  const uploadZone = document.querySelector(".upload-zone");
+  const uploadBtn = document.querySelector(".upload-btn");
+  const browseBtn = document.querySelector(".browse-btn");
 
-  document.querySelector(".new-chat").addEventListener("click", function () {
+  // Handle file browse button
+  browseBtn.addEventListener("click", function(e) {
+      e.preventDefault();
       fileInput.click();
   });
 
-  fileInput.addEventListener("change", function () {
-      if (fileInput.files.length === 0) return;
+  // Handle sidebar upload button
+  uploadBtn.addEventListener("click", function() {
+      show_view(".new-chat-view");
+      setTimeout(() => fileInput.click(), 300);
+  });
 
+  // Handle drag and drop events
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, highlight, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, unhighlight, false);
+  });
+
+  function highlight() {
+      dropZone.classList.add('drag-over');
+  }
+
+  function unhighlight() {
+      dropZone.classList.remove('drag-over');
+  }
+
+  dropZone.addEventListener('drop', handleDrop, false);
+
+  function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length) {
+          fileInput.files = files;
+          handleFiles(files);
+      }
+  }
+
+  fileInput.addEventListener("change", function() {
+      if (fileInput.files.length) {
+          handleFiles(fileInput.files);
+      }
+  });
+
+  function handleFiles(files) {
+      const file = files[0]; // Only handle the first file for now
+      
+      // Validate file type
+      const fileExt = file.name.split(".").pop().toLowerCase();
+      if (fileExt !== "pdf" && fileExt !== "epub") {
+          alert("Please upload a PDF or EPUB file.");
+          return;
+      }
+
+      // Show progress
+      uploadZone.style.display = "none";
+      uploadProgress.style.display = "block";
+      
+      // Create FormData and upload
       let formData = new FormData();
-      formData.append("file", fileInput.files[0]);
+      formData.append("file", file);
+
+      // Simulated progress (in a real app, you'd use XHR or fetch with progress events)
+      let progress = 0;
+      const interval = setInterval(() => {
+          progress += 5;
+          progressBar.style.width = `${Math.min(progress, 90)}%`;
+          progressText.textContent = `Processing ${file.name}...`;
+          if (progress >= 90) clearInterval(interval);
+      }, 200);
 
       fetch("/upload", {
           method: "POST",
@@ -124,9 +197,67 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .then(response => response.json())
       .then(data => {
-          alert(data.message || data.error);
+          clearInterval(interval);
+          
+          if (data.error) {
+              progressText.textContent = data.error;
+              progressBar.style.width = "0%";
+              setTimeout(() => {
+                  uploadZone.style.display = "block";
+                  uploadProgress.style.display = "none";
+              }, 3000);
+          } else {
+              progressBar.style.width = "100%";
+              progressText.textContent = "File processed successfully!";
+              
+              // Add the book to conversation list
+              addBookToConversations(file.name);
+              
+              // Switch to chat view after a delay
+              setTimeout(() => {
+                  show_view(".conversation-view");
+                  
+                  // Display welcome message
+                  displayMessage("assistant", `I've processed your book "${file.name}". What would you like to know about it?`);
+              }, 1500);
+          }
+      })
+      .catch(error => {
+          clearInterval(interval);
+          progressText.textContent = "An error occurred during upload";
+          progressBar.style.width = "0%";
+          
+          setTimeout(() => {
+              uploadZone.style.display = "block";
+              uploadProgress.style.display = "none";
+          }, 3000);
       });
+  }
 
-      fileInput.value = ""; // Reset input
-  });
+  function addBookToConversations(fileName) {
+      const conversationsList = document.querySelector(".conversations");
+      const listItem = document.createElement("li");
+      listItem.innerHTML = `
+          <button>
+              <i class="fa fa-book"></i>${fileName.length > 20 ? fileName.substring(0, 20) + '...' : fileName}
+          </button>
+          <div class="edit-buttons">
+              <button><i class="fa fa-pen-to-square"></i></button>
+              <button><i class="fa fa-trash"></i></button>
+          </div>
+          <div class="fade"></div>
+      `;
+      
+      // Add after the "Recent Conversations" grouping
+      if (conversationsList.querySelector(".grouping")) {
+          conversationsList.insertBefore(listItem, conversationsList.querySelector(".grouping").nextSibling);
+      } else {
+          conversationsList.appendChild(listItem);
+      }
+      
+      // Add click handler to open this conversation
+      listItem.querySelector("button").addEventListener("click", function() {
+          show_view(".conversation-view");
+      });
+  }
 });

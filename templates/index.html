@@ -12,72 +12,74 @@
     <nav id="sidebar">
         <div class="float-top">
             <div class="sidebar-controls">
-                <button class="new-chat select-book"><i class="fa fa-plus"></i> Select book</button>
+                <button class="new-chat"><i class="fa fa-plus"></i> New Chat</button>
                 <button class="hide-sidebar"><i class="fa fa-chevron-left"></i></button>
             </div>
-            <button class=""><i class="fa fa-plus"></i> Upload</button>
+            <button class="upload-btn"><i class="fa fa-book"></i> Upload Book</button>
             <ul class="conversations">
-                <li class="grouping">The title of the book comes here</li>
+                <li class="grouping">Recent Conversations</li>
+                <!-- Conversation history will be added here dynamically -->
             </ul>
         </div>
         <div class="user-menu">
             <button>
-                <i class="user-icon">C</i>
-                Coming soon..
+                <i class="user-icon">U</i>
+                SmartReader
                 <i class="fa fa-ellipsis dots"></i>
             </button>
             <ul>
-                <li><button>My plan</button></li>
-                <li><button>Custom instructions</button></li>
-                <li><button>Settings &amp; Beta</button></li>
+                <li><button>My Library</button></li>
+                <li><button>Reading History</button></li>
+                <li><button>Settings</button></li>
                 <li><button>Log out</button></li>
             </ul>
         </div>
     </nav>
     <main>
         <div class="view new-chat-view">
-            <div class="model-selector">
-                <button class="gpt-3 selected">
-                    <i class="fa fa-bolt"></i> GPT-3.5
-                    <div class="model-info">
-                        <div class="model-info-box">
-                            <p>Our fastest model, great for most every day tasks.</p>
-
-                            <p class="secondary">Available to Free and Plus users</p>
-                        </div>
+            <div class="welcome-container">
+                <div class="logo">
+                    SmartReadAI
+                </div>
+                <p class="welcome-text">Upload a book to start chatting about it</p>
+                
+                <div class="upload-container">
+                    <div class="upload-zone" id="dropZone">
+                        <i class="fa fa-cloud-upload-alt"></i>
+                        <p>Drag and drop your PDF or EPUB file here</p>
+                        <p>or</p>
+                        <button class="browse-btn">Browse Files</button>
+                        <p class="file-types">Supported formats: PDF, EPUB</p>
                     </div>
-                </button>
-                <button class="gpt-4">
-                    <i class="fa fa-wand-magic-sparkles"></i> GPT-4
-                    <div class="model-info">
-                        <div class="model-info-box">
-                            <p>Our most capable model, great for creative stuff.</p>
-
-                            <p class="secondary">Available for Plus users.</p>
+                    <div class="upload-progress">
+                        <div class="progress-bar">
+                            <div class="progress"></div>
                         </div>
+                        <p class="progress-text">Processing file...</p>
                     </div>
-                </button>
-            </div>
-
-            <div class="logo">
-                ChatWTF
+                </div>
             </div>
         </div>
 
         <div class="view conversation-view">
             <div class="model-name">
-                <i class="fa fa-bolt"></i> SmartReadAI
+                <i class="fa fa-book"></i> SmartReadAI
             </div>
+            <!-- Messages will be added here dynamically -->
         </div>
 
         <div id="message-form">
             <div class="message-wrapper">
-                <textarea id="message" rows="1" placeholder="Send a message"></textarea>
+                <textarea id="message" rows="1" placeholder="Ask about your book..."></textarea>
                 <button class="send-button"><i class="fa fa-paper-plane"></i></button>
             </div>
-            <div class="disclaimer">This is a ChatGPT UI Clone for personal use and educational purposes only.</div>
+            <div class="disclaimer">SmartReadAI helps you understand and analyze books through AI-powered conversations.</div>
         </div>
     </main>
+
+    <!-- Upload file input (hidden) -->
+    <input type="file" id="fileInput" style="display: none;" accept=".pdf,.epub">
+
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
