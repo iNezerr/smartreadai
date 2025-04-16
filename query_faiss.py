@@ -52,21 +52,27 @@ def get_answer(question):
     embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_KEY, model="text-embedding-ada-002")
     vector_db = FAISS.load_local(FAISS_INDEX_DIR, embeddings, allow_dangerous_deserialization=True)
 
-    # Set up retriever
-    retriever = vector_db.as_retriever(search_type="mmr", search_kwargs={"k": 5})
+    # Set up retriever with improved parameters for more context
+    retriever = vector_db.as_retriever(
+        search_type="mmr",
+        search_kwargs={"k": 8, "fetch_k": 15}  # Increased from 5 to get more context
+    )
+    
     retrieved_docs = retriever.get_relevant_documents(question)
     print("Retrieved Chunks:", [doc.page_content for doc in retrieved_docs])
 
     # Initialize LLM
-    llm = ChatOpenAI(model_name="gpt-4o-mini", openai_api_key=OPENAI_KEY)
+    llm = ChatOpenAI(model_name="gpt-4o-mini", openai_api_key=OPENAI_KEY, temperature=0.3)
 
-    # Use the provided system prompt
+    # Improved system prompt that doesn't emphasize lack of information
     system_prompt = (
-    "You are a helpful assistant that answers questions based on a book.\n"
-    "If asked for a summary, extract key points and main ideas from the retrieved book content.\n"
-    "If the chapter or section is only partially available, summarize what is available.\n"
-    "If you can't find enough relevant details, say: 'I don't have enough information to provide a full summary, but here is what I found:' and summarize whatever is retrieved.\n"
-    "Do not make up information beyond what is provided.\n\n"
+    "You are a knowledgeable assistant that provides insightful answers about books.\n"
+    "Use the provided book content to answer questions confidently and thoughtfully.\n"
+    "When summarizing, extract key points, themes, and important details from the available content.\n"
+    "Connect related information from different parts of the text to provide comprehensive answers.\n"
+    "Focus on what you can determine from the text rather than emphasizing what might be missing.\n"
+    "If certain details aren't available, simply focus on what IS available without disclaimers.\n"
+    "Make reasonable inferences based on the text, but avoid inventing specific plot points or quotes.\n\n"
     "Book Content:\n{context}\n\n"
 )
 
