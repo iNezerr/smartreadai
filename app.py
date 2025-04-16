@@ -21,7 +21,13 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 
 @app.route("/")
 def index():
-    """Render the main HTML page."""
+    """Render the landing page."""
+    return render_template("landing.html")
+
+
+@app.route("/chat")
+def chat():
+    """Render the chat interface page."""
     return render_template("index.html")
 
 
