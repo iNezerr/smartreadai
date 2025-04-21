@@ -3,7 +3,7 @@ import json
 import time
 import numpy as np
 from dotenv import load_dotenv
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_community.chat_models import ChatOpenAI
 from langchain.schema import Document
 from langchain.chains import create_retrieval_chain
