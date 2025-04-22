@@ -12,7 +12,17 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.retrievers import BaseRetriever
 from typing import List, Dict, Any
 import tenacity
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception, before_sleep_log
+import ssl
+import httpx
+import random
+import logging
+import socket
+import sys
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Import pymilvus directly
 from pymilvus import (
@@ -202,16 +212,76 @@ class MilvusRetriever(BaseRetriever):
 
 # Define a retry decorator for embedding generation with improved parameters
 @retry(
-    stop=stop_after_attempt(7),  # Increased retries from 5 to 7
-    wait=wait_exponential(multiplier=1, min=2, max=20),  # Increased backoff
-    reraise=True
+    stop=stop_after_attempt(20),  # Increased retries from 15 to 20
+    wait=wait_exponential(multiplier=1, min=4, max=180),  # Extended max backoff to 3 minutes
+    reraise=True,
+    before_sleep=before_sleep_log(logger, logging.WARNING),
+    retry=tenacity.retry_if_exception_type((
+        Exception, 
+        ssl.SSLError, 
+        httpx.ReadTimeout, 
+        httpx.ConnectTimeout, 
+        httpx.ReadError,
+        httpx.WriteError,
+        httpx.NetworkError,
+        httpx.RemoteProtocolError,
+        httpx.PoolTimeout,
+        socket.timeout,
+        socket.error,
+        ConnectionError,
+        ConnectionRefusedError,
+        ConnectionResetError,
+        ConnectionAbortedError,
+        TimeoutError,  # Added for general timeout errors
+        OSError,       # Added for underlying OS-level network errors
+        BrokenPipeError  # Added specifically for pipe failures
+    ))  # Expanded list of network-related errors
 )
 def generate_embeddings_with_retry(embeddings, text):
-    """Generate embeddings with retry logic for API failures."""
+    """Generate embeddings with retry logic for API failures and network issues."""
     try:
-        return embeddings.embed_query(text)
+        # Set a longer timeout for the embedding request
+        if hasattr(embeddings, 'client'):
+            old_timeout = embeddings.client.timeout if hasattr(embeddings.client, 'timeout') else None
+            if hasattr(embeddings.client, 'timeout'):
+                embeddings.client.timeout = 120.0  # Increased to 120-second timeout
+            
+            # If client has session attribute, attempt to close and recreate it
+            if hasattr(embeddings.client, 'session') and hasattr(embeddings.client.session, 'close'):
+                try:
+                    embeddings.client.session.close()
+                    # Force recreation of session on next use
+                    embeddings.client._session = None
+                except Exception as session_err:
+                    logger.warning(f"Failed to reset session: {str(session_err)}")
+        
+        # Attempt to generate embeddings
+        result = embeddings.embed_query(text)
+        
+        # Reset timeout to original value if we changed it
+        if hasattr(embeddings, 'client') and old_timeout is not None and hasattr(embeddings.client, 'timeout'):
+            embeddings.client.timeout = old_timeout
+            
+        return result
+        
     except Exception as e:
-        print(f"Embedding retry triggered: {str(e)}")
+        logger.warning(f"Embedding retry triggered: {str(e)}")
+        logger.warning(f"Error type: {type(e).__name__}")
+        
+        # Add a longer sleep before retry to help with possible rate limiting or network issues
+        sleep_time = random.uniform(10, 30)  # Increased random sleep between 10-30 seconds
+        logger.info(f"Sleeping for {sleep_time:.2f} seconds before retry...")
+        time.sleep(sleep_time)
+        
+        # Clear any potential SSL session cache if it's an SSL error
+        if isinstance(e, ssl.SSLError):
+            try:
+                logger.info("Clearing SSL session cache before retry...")
+                ssl.SSLContext.session_stats({})  # This will help reset SSL sessions
+            except Exception as ssl_err:
+                logger.warning(f"Failed to clear SSL session: {str(ssl_err)}")
+        
+        # Make sure we re-raise so the retry decorator can do its job
         raise
 
 def create_faiss_index(max_chunks=None):
@@ -347,7 +417,7 @@ def create_faiss_index(max_chunks=None):
 def get_answer(question):
     """Retrieves the best answer from Zilliz Milvus for a given question using an LLM."""
     # Generate embeddings
-    embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_KEY, model="text-embedding-ada-002")
+    embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_KEY, model="text-embedding-ada-002", timeout=60)
     
     # Connect to Milvus collection
     retriever = MilvusRetriever(
@@ -358,11 +428,23 @@ def get_answer(question):
         fetch_k=15
     )
     
-    retrieved_docs = retriever.get_relevant_documents(question)
-    print("Retrieved Chunks:", [doc.page_content for doc in retrieved_docs])
+    try:
+        # Use our retry function for the query embedding
+        query_embedding = generate_embeddings_with_retry(embeddings, question)
+        retrieved_docs = retriever.get_relevant_documents(question)
+        print("Retrieved Chunks:", [doc.page_content[:100] + "..." for doc in retrieved_docs])  # Truncate for logging
+    except Exception as e:
+        print(f"Error retrieving documents: {str(e)}")
+        # Fall back to default response if retrieval fails
+        return "I'm sorry, I encountered an issue retrieving information from the document. Please try again in a moment."
 
-    # Initialize LLM
-    llm = ChatOpenAI(model_name="gpt-4o-mini", openai_api_key=OPENAI_KEY, temperature=0.3)
+    # Initialize LLM with increased timeout
+    llm = ChatOpenAI(
+        model_name="gpt-4o-mini", 
+        openai_api_key=OPENAI_KEY, 
+        temperature=0.3,
+        request_timeout=90  # Increase timeout for LLM calls
+    )
 
     # Improved system prompt that doesn't emphasize lack of information
     system_prompt = (
@@ -382,10 +464,22 @@ def get_answer(question):
         ("human", "{input}")
     ])
 
-    # Create a chain that retrieves documents and processes them with the LLM
-    qa_chain = create_retrieval_chain(retriever, create_stuff_documents_chain(llm, prompt))
-
-    # Get AI-generated answer
-    response = qa_chain.invoke({"input": question})["answer"]
-
-    return response
+    try:
+        # Create a chain that retrieves documents and processes them with the LLM
+        qa_chain = create_retrieval_chain(retriever, create_stuff_documents_chain(llm, prompt))
+        
+        # Get AI-generated answer with retry
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = qa_chain.invoke({"input": question})["answer"]
+                return response
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    print(f"LLM query failed, retrying ({attempt + 1}/{max_retries}): {str(e)}")
+                    time.sleep(5 * (attempt + 1))  # Progressive backoff
+                else:
+                    raise
+    except Exception as e:
+        print(f"Error generating answer: {str(e)}")
+        return "I apologize, but I'm having trouble generating a response at the moment. Please try again shortly."
